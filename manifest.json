@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "CMS Detector",
+  "name": "Sowads WP Audit",
   "version": "1.0.0",
-  "description": "Identifica se um site usa WordPress ou outro CMS provavel.",
+  "description": "Identifica WordPress, CMS provavel e sinais de conteudo via sitemap.",
   "action": {
     "default_title": "Detectar CMS",
     "default_popup": "popup.html"
