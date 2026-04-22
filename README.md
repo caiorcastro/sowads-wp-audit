@@ -17,58 +17,25 @@ O princípio do projeto é direto: mostrar o que foi encontrado, deixar claro o 
 
 ## Instalação Rápida
 
-> O Chrome instala esta extensão como pasta descompactada. Você baixa o `.zip` do GitHub, descompacta e aponta o Chrome para a pasta extraída.
-
-| Etapa | O que fazer |
-| --- | --- |
-| 1. Baixar | Abra o repositório no GitHub e clique em `Code` -> `Download ZIP`. |
-| 2. Descompactar | Extraia o arquivo `.zip` no seu computador. |
-| 3. Abrir Chrome | Acesse `chrome://extensions/`. |
-| 4. Liberar dev mode | Ative `Modo do desenvolvedor` no canto superior direito. |
-| 5. Carregar | Clique em `Carregar sem compactação`. |
-| 6. Selecionar pasta | Escolha a pasta extraída do projeto, não o arquivo `.zip`. |
-| 7. Usar | Abra um site e clique no ícone da extensão. |
+**Seguro por padrão:** o código é aberto, não tem build escondido, não usa dependências externas e pode ser auditado arquivo por arquivo neste repositório.
 
 ```text
-GitHub
-  -> Code
-  -> Download ZIP
-  -> Descompactar
-  -> chrome://extensions/
-  -> Modo do desenvolvedor
-  -> Carregar sem compactação
-  -> Selecionar a pasta extraída
+1. GitHub -> Code -> Download ZIP
+2. Descompacte a pasta
+3. Chrome -> chrome://extensions/
+4. Ative Modo do desenvolvedor
+5. Carregar sem compactação -> selecione a pasta
+6. Fixe o ícone da extensão na barra do Chrome
 ```
 
-### Baixar Pelo GitHub
-
-1. Entre em `https://github.com/caiorcastro/sowads-wp-audit`.
-2. Clique no botão verde `Code`.
-3. Clique em `Download ZIP`.
-4. Descompacte o arquivo baixado.
-5. Guarde a pasta descompactada em um local fácil de encontrar.
-
-### Instalar No Chrome
-
-1. Abra `chrome://extensions/`.
-2. Ative `Modo do desenvolvedor`.
-3. Clique em `Carregar sem compactação`.
-4. Selecione a pasta descompactada do projeto.
-5. Confirme que a extensão `Sowads WP Audit` apareceu na lista.
-6. Fixe o ícone na barra do Chrome, se quiser acessar mais rápido.
-
-### Atenção Ao ZIP
-
-O Chrome não carrega o arquivo `.zip` diretamente em `Carregar sem compactação`. Se você baixou pelo GitHub, precisa descompactar primeiro e selecionar a pasta resultante.
-
-Também dá para instalar clonando pelo terminal:
+Se preferir terminal:
 
 ```bash
 git clone https://github.com/caiorcastro/sowads-wp-audit.git
 cd sowads-wp-audit
 ```
 
-Depois carregue a pasta clonada em `chrome://extensions/`.
+Depois carregue essa pasta em `chrome://extensions/` e fixe o ícone da extensão.
 
 ## Destaques
 
