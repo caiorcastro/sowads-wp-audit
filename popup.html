@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>CMS Detector</title>
+    <link rel="stylesheet" href="popup.css">
+  </head>
+  <body>
+    <main class="shell">
+      <header class="topbar">
+        <div class="brand">
+          <span class="mark" aria-hidden="true">S</span>
+          <div>
+            <h1>Sowads CMS Audit</h1>
+            <p id="pageHost">Pagina atual</p>
+          </div>
+        </div>
+        <button id="refreshButton" class="icon-button" type="button" title="Detectar novamente" aria-label="Detectar novamente">
+          <svg aria-hidden="true" viewBox="0 0 24 24">
+            <path d="M17.7 6.3A8 8 0 1 0 20 12h-2a6 6 0 1 1-1.8-4.3L13 11h8V3z"></path>
+          </svg>
+        </button>
+      </header>
+
+      <section id="loadingState" class="state">
+        <div class="loader" aria-hidden="true"></div>
+        <p>Analisando sinais do site...</p>
+      </section>
+
+      <section id="resultState" class="result hidden" aria-live="polite">
+        <div class="hero-result">
+          <div>
+            <p id="statusLabel" class="eyebrow">CMS provavel</p>
+            <h2 id="resultTitle">CMS nao identificado</h2>
+            <p id="resultMessage" class="message"></p>
+          </div>
+          <div id="scoreBadge" class="score-badge">0</div>
+        </div>
+
+        <div id="primaryDescription" class="description hidden"></div>
+
+        <div id="contentBlock" class="content-panel">
+          <div class="content-header">
+            <div>
+              <p class="eyebrow">Sitemap</p>
+              <h3 id="contentTitle">Blog/conteudo</h3>
+            </div>
+            <span id="contentCount" class="mini-badge">0</span>
+          </div>
+          <p id="contentMessage" class="content-message">Verificando sitemap rapido...</p>
+          <div id="contentExamples" class="url-list hidden"></div>
+        </div>
+
+        <div id="alternativesBlock" class="block hidden">
+          <h3>Possiveis alternativas</h3>
+          <div id="alternativesList" class="pill-list"></div>
+        </div>
+
+        <div class="block">
+          <h3>Evidencias</h3>
+          <div id="signalsList" class="signals"></div>
+        </div>
+      </section>
+
+      <section id="errorState" class="state hidden">
+        <p id="errorMessage">Nao foi possivel analisar esta pagina.</p>
+      </section>
+    </main>
+
+    <script src="detector.js"></script>
+    <script src="popup.js"></script>
+  </body>
+</html>

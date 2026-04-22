@@ -1,0 +1,33 @@
+{
+  "manifest_version": 3,
+  "name": "CMS Detector",
+  "version": "1.0.0",
+  "description": "Identifica se um site usa WordPress ou outro CMS provavel.",
+  "action": {
+    "default_title": "Detectar CMS",
+    "default_popup": "popup.html"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "permissions": [
+    "activeTab"
+  ],
+  "host_permissions": [
+    "http://*/*",
+    "https://*/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "http://*/*",
+        "https://*/*"
+      ],
+      "js": [
+        "detector.js",
+        "content.js"
+      ],
+      "run_at": "document_idle"
+    }
+  ]
+}

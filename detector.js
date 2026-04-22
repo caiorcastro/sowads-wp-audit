@@ -1,0 +1,192 @@
+(function attachDetector(global) {
+  const CMS_META = {
+    wordpress: {
+      name: "WordPress",
+      description: "CMS PHP popular em blogs, sites institucionais e e-commerce com WooCommerce."
+    },
+    shopify: {
+      name: "Shopify",
+      description: "Plataforma SaaS de e-commerce."
+    },
+    wix: {
+      name: "Wix",
+      description: "Construtor visual de sites hospedado."
+    },
+    webflow: {
+      name: "Webflow",
+      description: "Construtor visual com hospedagem e CMS proprio."
+    },
+    squarespace: {
+      name: "Squarespace",
+      description: "Construtor de sites hospedado."
+    },
+    drupal: {
+      name: "Drupal",
+      description: "CMS PHP modular usado em sites corporativos e governamentais."
+    },
+    joomla: {
+      name: "Joomla",
+      description: "CMS PHP com templates, modulos e componentes."
+    },
+    magento: {
+      name: "Magento / Adobe Commerce",
+      description: "Plataforma PHP de e-commerce."
+    },
+    ghost: {
+      name: "Ghost",
+      description: "CMS focado em publicacao e newsletters."
+    },
+    hubspot: {
+      name: "HubSpot CMS",
+      description: "CMS e plataforma de marketing da HubSpot."
+    },
+    prestashop: {
+      name: "PrestaShop",
+      description: "Plataforma open source de e-commerce."
+    },
+    blogger: {
+      name: "Blogger",
+      description: "Plataforma de blogs do Google."
+    },
+    duda: {
+      name: "Duda",
+      description: "Construtor de sites usado por agencias e white label."
+    },
+    nextjs: {
+      name: "Next.js",
+      description: "Framework React. Pode indicar site customizado, nao necessariamente CMS."
+    }
+  };
+
+  const CMS_ORDER = [
+    "wordpress",
+    "shopify",
+    "wix",
+    "webflow",
+    "squarespace",
+    "drupal",
+    "joomla",
+    "magento",
+    "ghost",
+    "hubspot",
+    "prestashop",
+    "blogger",
+    "duda",
+    "nextjs"
+  ];
+
+  function normalizeSignal(signal) {
+    return {
+      cms: signal.cms,
+      label: signal.label || "Evidencia",
+      detail: signal.detail || "",
+      source: signal.source || "page",
+      url: signal.url || "",
+      weight: Number(signal.weight || 0)
+    };
+  }
+
+  function scoreSignals(signals) {
+    const scores = {};
+    const byCms = {};
+
+    for (const signal of signals.map(normalizeSignal)) {
+      if (!signal.cms || !CMS_META[signal.cms] || !signal.weight) {
+        continue;
+      }
+
+      scores[signal.cms] = (scores[signal.cms] || 0) + signal.weight;
+      byCms[signal.cms] = byCms[signal.cms] || [];
+      byCms[signal.cms].push(signal);
+    }
+
+    return Object.entries(scores)
+      .map(([cms, score]) => {
+        const cappedScore = Math.min(100, Math.round(score));
+        return {
+          cms,
+          name: CMS_META[cms].name,
+          description: CMS_META[cms].description,
+          score: cappedScore,
+          confidence: confidenceFromScore(cappedScore),
+          signals: (byCms[cms] || []).sort((a, b) => b.weight - a.weight)
+        };
+      })
+      .sort((a, b) => {
+        if (b.score !== a.score) return b.score - a.score;
+        return CMS_ORDER.indexOf(a.cms) - CMS_ORDER.indexOf(b.cms);
+      });
+  }
+
+  function confidenceFromScore(score) {
+    if (score >= 75) return "alta";
+    if (score >= 45) return "media";
+    if (score >= 20) return "baixa";
+    return "incerta";
+  }
+
+  function summarize(results) {
+    const primary = results[0] || null;
+    const alternatives = results.slice(1, 4);
+
+    if (!primary || primary.score < 20) {
+      return {
+        status: "unknown",
+        title: "CMS nao identificado",
+        message: "Nao encontrei sinais fortes de WordPress ou outro CMS conhecido.",
+        primary: null,
+        alternatives
+      };
+    }
+
+    return {
+      status: primary.confidence === "baixa" ? "possible" : "detected",
+      title: primary.confidence === "baixa"
+        ? `${primary.name} possivel`
+        : `${primary.name} detectado`,
+      message: `Confianca ${primary.confidence}, baseada em ${primary.signals.length} evidencia(s).`,
+      primary,
+      alternatives
+    };
+  }
+
+  function mergeEvidence(...groups) {
+    const merged = [];
+    const seen = new Set();
+
+    for (const group of groups) {
+      for (const signal of Array.isArray(group) ? group : []) {
+        const normalized = normalizeSignal(signal);
+        const key = [
+          normalized.cms,
+          normalized.label,
+          normalized.detail,
+          normalized.source,
+          normalized.url
+        ].join("|");
+
+        if (!seen.has(key)) {
+          seen.add(key);
+          merged.push(normalized);
+        }
+      }
+    }
+
+    return merged;
+  }
+
+  function analyzeSignals(signals) {
+    const results = scoreSignals(signals);
+    return {
+      results,
+      summary: summarize(results)
+    };
+  }
+
+  global.CMSDetector = {
+    CMS_META,
+    analyzeSignals,
+    mergeEvidence,
+    scoreSignals
+  };
+})(typeof globalThis !== "undefined" ? globalThis : self);
