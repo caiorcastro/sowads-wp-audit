@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Sowads WP Audit",
   "version": "1.0.0",
-  "description": "Identifica WordPress, CMS provavel e sinais de conteudo via sitemap.",
+  "description": "Identifica WordPress, CMS provável e sinais de conteúdo via sitemap.",
   "action": {
     "default_title": "Detectar CMS",
     "default_popup": "popup.html"

@@ -229,7 +229,7 @@
     } catch (error) {
       sendResponse({
         ok: false,
-        error: error && error.message ? error.message : "Falha ao coletar evidencias da pagina."
+        error: error && error.message ? error.message : "Falha ao coletar evidências da página."
       });
     }
 

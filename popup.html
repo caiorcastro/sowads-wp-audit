@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>CMS Detector</title>
+    <title>Sowads WP Audit</title>
     <link rel="stylesheet" href="popup.css">
   </head>
   <body>
@@ -12,8 +12,8 @@
         <div class="brand">
           <span class="mark" aria-hidden="true">S</span>
           <div>
-            <h1>Sowads CMS Audit</h1>
-            <p id="pageHost">Pagina atual</p>
+            <h1>Sowads WP Audit</h1>
+            <p id="pageHost">Página atual</p>
           </div>
         </div>
         <button id="refreshButton" class="icon-button" type="button" title="Detectar novamente" aria-label="Detectar novamente">
@@ -31,8 +31,8 @@
       <section id="resultState" class="result hidden" aria-live="polite">
         <div class="hero-result">
           <div>
-            <p id="statusLabel" class="eyebrow">CMS provavel</p>
-            <h2 id="resultTitle">CMS nao identificado</h2>
+            <p id="statusLabel" class="eyebrow">CMS provável</p>
+            <h2 id="resultTitle">CMS não identificado</h2>
             <p id="resultMessage" class="message"></p>
           </div>
           <div id="scoreBadge" class="score-badge">0</div>
@@ -44,27 +44,27 @@
           <div class="content-header">
             <div>
               <p class="eyebrow">Sitemap</p>
-              <h3 id="contentTitle">Blog/conteudo</h3>
+              <h3 id="contentTitle">Blog/conteúdo</h3>
             </div>
             <span id="contentCount" class="mini-badge">0</span>
           </div>
-          <p id="contentMessage" class="content-message">Verificando sitemap rapido...</p>
+          <p id="contentMessage" class="content-message">Verificando sitemap rápido...</p>
           <div id="contentExamples" class="url-list hidden"></div>
         </div>
 
         <div id="alternativesBlock" class="block hidden">
-          <h3>Possiveis alternativas</h3>
+          <h3>Possíveis alternativas</h3>
           <div id="alternativesList" class="pill-list"></div>
         </div>
 
         <div class="block">
-          <h3>Evidencias</h3>
+          <h3>Evidências</h3>
           <div id="signalsList" class="signals"></div>
         </div>
       </section>
 
       <section id="errorState" class="state hidden">
-        <p id="errorMessage">Nao foi possivel analisar esta pagina.</p>
+        <p id="errorMessage">Não foi possível analisar esta página.</p>
       </section>
     </main>
 

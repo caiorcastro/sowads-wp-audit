@@ -14,7 +14,7 @@
     },
     webflow: {
       name: "Webflow",
-      description: "Construtor visual com hospedagem e CMS proprio."
+      description: "Construtor visual com hospedagem e CMS próprio."
     },
     squarespace: {
       name: "Squarespace",
@@ -26,7 +26,7 @@
     },
     joomla: {
       name: "Joomla",
-      description: "CMS PHP com templates, modulos e componentes."
+      description: "CMS PHP com templates, módulos e componentes."
     },
     magento: {
       name: "Magento / Adobe Commerce",
@@ -34,7 +34,7 @@
     },
     ghost: {
       name: "Ghost",
-      description: "CMS focado em publicacao e newsletters."
+      description: "CMS focado em publicação e newsletters."
     },
     hubspot: {
       name: "HubSpot CMS",
@@ -50,11 +50,11 @@
     },
     duda: {
       name: "Duda",
-      description: "Construtor de sites usado por agencias e white label."
+      description: "Construtor de sites usado por agências e white label."
     },
     nextjs: {
       name: "Next.js",
-      description: "Framework React. Pode indicar site customizado, nao necessariamente CMS."
+      description: "Framework React. Pode indicar site customizado, não necessariamente CMS."
     }
   };
 
@@ -120,7 +120,7 @@
 
   function confidenceFromScore(score) {
     if (score >= 75) return "alta";
-    if (score >= 45) return "media";
+    if (score >= 45) return "média";
     if (score >= 20) return "baixa";
     return "incerta";
   }
@@ -132,8 +132,8 @@
     if (!primary || primary.score < 20) {
       return {
         status: "unknown",
-        title: "CMS nao identificado",
-        message: "Nao encontrei sinais fortes de WordPress ou outro CMS conhecido.",
+        title: "CMS não identificado",
+        message: "Não encontrei sinais fortes de WordPress ou outro CMS conhecido.",
         primary: null,
         alternatives
       };
@@ -142,9 +142,9 @@
     return {
       status: primary.confidence === "baixa" ? "possible" : "detected",
       title: primary.confidence === "baixa"
-        ? `${primary.name} possivel`
+        ? `${primary.name} possível`
         : `${primary.name} detectado`,
-      message: `Confianca ${primary.confidence}, baseada em ${primary.signals.length} evidencia(s).`,
+      message: `Confiança ${primary.confidence}, baseada em ${primary.signals.length} evidência(s).`,
       primary,
       alternatives
     };

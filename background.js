@@ -155,11 +155,11 @@ async function probeWordPressJson(signals, origin) {
       const data = await response.json();
       const payload = JSON.stringify(data).slice(0, 25000);
       if (payload.includes('"wp/v2"') || payload.includes('"namespaces"') && payload.includes("wp/")) {
-        add(signals, "wordpress", "Endpoint /wp-json/", "REST API WordPress respondeu JSON valido", 55, "network", wpJsonUrl);
+        add(signals, "wordpress", "Endpoint /wp-json/", "REST API WordPress respondeu JSON válido", 55, "network", wpJsonUrl);
       }
     }
   } catch (_) {
-    // Sites podem bloquear /wp-json/; a ausencia de resposta nao invalida outros sinais.
+    // Sites podem bloquear /wp-json/; a ausência de resposta não invalida outros sinais.
   }
 }
 
@@ -378,10 +378,10 @@ function summarizeSitemap(urls, fetchedSitemaps) {
     blogSignals: Array.from(blogSignals),
     examples,
     message: uniqueContentUrls.length
-      ? `${uniqueContentUrls.length} URL(s) de conteudo/artigo encontradas no sitemap.`
+      ? `${uniqueContentUrls.length} URL(s) de conteúdo/artigo encontradas no sitemap.`
       : fetchedSitemaps.length
         ? "Sitemap encontrado, mas sem URLs claras de blog/artigos."
-        : "Nao encontrei sitemap publico nos caminhos rapidos."
+        : "Não encontrei sitemap público nos caminhos rápidos."
   };
 }
 
@@ -510,7 +510,7 @@ async function collectNetworkEvidence(pageUrl) {
       hasBlog: false,
       blogSignals: [],
       examples: [],
-      message: "URL invalida para verificar sitemap."
+      message: "URL inválida para verificar sitemap."
     }
   };
 
@@ -548,7 +548,7 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
     .catch((error) => {
       sendResponse({
         ok: false,
-        error: error && error.message ? error.message : "Falha ao coletar evidencias de rede."
+        error: error && error.message ? error.message : "Falha ao coletar evidências de rede."
       });
     });
 

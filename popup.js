@@ -38,7 +38,7 @@ function formatHost(url) {
   try {
     return new URL(url).hostname.replace(/^www\./, "");
   } catch (_) {
-    return "Pagina atual";
+    return "Página atual";
   }
 }
 
@@ -83,7 +83,7 @@ function renderSignals(primary, allResults) {
   if (!signals.length) {
     const empty = document.createElement("div");
     empty.className = "signal";
-    empty.textContent = "Nenhuma evidencia conhecida encontrada nesta pagina.";
+    empty.textContent = "Nenhuma evidência conhecida encontrada nesta página.";
     signalsList.appendChild(empty);
     return;
   }
@@ -144,21 +144,21 @@ function renderSitemap(sitemap) {
     contentUrlsFound: 0,
     hasBlog: false,
     examples: [],
-    message: "Sitemap nao verificado."
+    message: "Sitemap não verificado."
   };
 
   contentExamples.innerHTML = "";
   contentCount.textContent = String(data.contentUrlsFound || 0);
 
   if (data.hasBlog) {
-    contentTitle.textContent = "Blog/conteudo encontrado";
+    contentTitle.textContent = "Blog/conteúdo encontrado";
   } else if (data.status === "found") {
     contentTitle.textContent = "Sem blog claro";
   } else {
-    contentTitle.textContent = "Sitemap nao encontrado";
+    contentTitle.textContent = "Sitemap não encontrado";
   }
 
-  contentMessage.textContent = data.message || "Sem evidencia de blog no sitemap.";
+  contentMessage.textContent = data.message || "Sem evidência de blog no sitemap.";
 
   const examples = Array.isArray(data.examples) ? data.examples.slice(0, 4) : [];
   setVisible(contentExamples, examples.length > 0);
@@ -182,7 +182,7 @@ function renderResult(analysis, sitemap) {
   resultState.classList.toggle("low", primary && primary.score < 45);
   resultState.classList.toggle("unknown", !primary);
 
-  statusLabel.textContent = primary ? `Confianca ${primary.confidence}` : "Sem match";
+  statusLabel.textContent = primary ? `Confiança ${primary.confidence}` : "Sem match";
   resultTitle.textContent = summary.title;
   resultMessage.textContent = summary.message;
   scoreBadge.textContent = primary ? primary.score : "0";
@@ -208,7 +208,7 @@ async function detect() {
 
   const tab = await getActiveTab();
   if (!tab || !tab.id || !tab.url || !/^https?:\/\//i.test(tab.url)) {
-    pageHost.textContent = "Pagina indisponivel";
+    pageHost.textContent = "Página indisponível";
     showError("Abra um site HTTP ou HTTPS para analisar.");
     return;
   }
