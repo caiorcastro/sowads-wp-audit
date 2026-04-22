@@ -12,6 +12,8 @@ const contentTitle = document.querySelector("#contentTitle");
 const contentCount = document.querySelector("#contentCount");
 const contentMessage = document.querySelector("#contentMessage");
 const contentExamples = document.querySelector("#contentExamples");
+const contentHubsBlock = document.querySelector("#contentHubsBlock");
+const contentHubsList = document.querySelector("#contentHubsList");
 const alternativesBlock = document.querySelector("#alternativesBlock");
 const alternativesList = document.querySelector("#alternativesList");
 const signalsList = document.querySelector("#signalsList");
@@ -172,6 +174,35 @@ function renderSitemap(sitemap) {
     item.title = url;
     item.textContent = simplifyUrl(url);
     contentExamples.appendChild(item);
+  }
+
+  renderContentHubs(data.contentLinksChecked || []);
+}
+
+function renderContentHubs(links) {
+  contentHubsList.innerHTML = "";
+  const visibleLinks = Array.isArray(links) ? links.slice(0, 4) : [];
+  setVisible(contentHubsBlock, visibleLinks.length > 0);
+
+  for (const link of visibleLinks) {
+    const item = document.createElement("a");
+    item.className = "hub-item";
+    item.href = link.url;
+    item.target = "_blank";
+    item.rel = "noreferrer";
+    item.title = link.url;
+
+    const label = document.createElement("span");
+    label.className = "hub-url";
+    label.textContent = simplifyUrl(link.url);
+
+    const meta = document.createElement("span");
+    meta.className = "hub-meta";
+    const cms = Array.isArray(link.cms) && link.cms.length ? link.cms[0] : null;
+    meta.textContent = cms ? `${cms.name} ${cms.score}` : "CMS não confirmado";
+
+    item.append(label, meta);
+    contentHubsList.appendChild(item);
   }
 }
 

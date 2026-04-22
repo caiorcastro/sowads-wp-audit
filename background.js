@@ -278,6 +278,7 @@ function selectContentLinks(pageUrl, contentLinks) {
 async function probeContentLink(signals, link) {
   const source = "blog/conteúdo";
   const labelPrefix = "Blog: ";
+  const beforeCount = signals.length;
   const response = await fetchWithTimeout(link.url, {
     method: "GET",
     headers: {
@@ -298,6 +299,22 @@ async function probeContentLink(signals, link) {
       probeCommonFiles(signals, linkedOrigin)
     ]);
   }
+
+  const detectedCms = CMSDetector
+    .scoreSignals(signals.slice(beforeCount))
+    .filter((result) => result.score >= 20)
+    .map((result) => ({
+      cms: result.cms,
+      name: result.name,
+      score: result.score
+    }));
+
+  return {
+    url: response.url || link.url,
+    text: link.text || "Blog/conteúdo",
+    cms: detectedCms,
+    verified: true
+  };
 }
 
 function unique(values) {
@@ -647,12 +664,15 @@ async function collectNetworkEvidence(pageUrl, contentLinks = []) {
 
   const selectedContentLinks = selectContentLinks(pageUrl, contentLinks);
   const sitemapPromise = collectSitemapEvidence(origin);
-  await Promise.allSettled([
+  const probeResults = await Promise.allSettled([
     probeCurrentPage(signals, pageUrl),
     probeWordPress(signals, origin),
     probeCommonFiles(signals, origin),
     ...selectedContentLinks.map((link) => probeContentLink(signals, link))
   ]);
+  const contentLinksChecked = probeResults
+    .filter((result) => result.status === "fulfilled" && result.value && result.value.url)
+    .map((result) => result.value);
 
   const sitemaps = [await sitemapPromise.catch(() => ({
     checked: true,
@@ -678,9 +698,10 @@ async function collectNetworkEvidence(pageUrl, contentLinks = []) {
     if (result.status === "fulfilled") sitemaps.push(result.value);
   }
 
-  const sitemap = mergeSitemapEvidence(sitemaps, selectedContentLinks.map((link) => ({
+  const sitemap = mergeSitemapEvidence(sitemaps, contentLinksChecked.length ? contentLinksChecked : selectedContentLinks.map((link) => ({
     url: link.url,
-    text: link.text || "Blog/conteúdo"
+    text: link.text || "Blog/conteúdo",
+    cms: []
   })));
 
   return { signals, sitemap };

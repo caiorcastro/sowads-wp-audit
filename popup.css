@@ -272,6 +272,40 @@ h2 {
   border-color: #111111;
 }
 
+.hub-list {
+  display: grid;
+  gap: 7px;
+}
+
+.hub-item {
+  display: grid;
+  gap: 3px;
+  padding: 9px 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fffdf3;
+  color: #2b2400;
+  text-decoration: none;
+}
+
+.hub-item:hover {
+  border-color: #111111;
+}
+
+.hub-url {
+  overflow: hidden;
+  color: #111111;
+  font-size: 13px;
+  font-weight: 760;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.hub-meta {
+  color: var(--muted);
+  font-size: 12px;
+}
+
 .block {
   margin-top: 14px;
 }

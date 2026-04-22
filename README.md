@@ -44,7 +44,8 @@ Depois carregue essa pasta em `chrome://extensions/` e fixe o ícone da extensã
 - Mostra pontuação e confiança para o CMS principal.
 - Lista evidências para auditoria rápida.
 - Verifica sitemaps sem inflar o número com páginas institucionais.
-- Segue links claros de `blog`, `notícias`, `artigos`, `receitas`, `dicas` e áreas de conteúdo para checar se o CMS está no blog e não na home.
+- Lista URLs reais de áreas de conteúdo encontradas na página, como blog, notícias, artigos, receitas e dicas.
+- Segue poucos links claros de conteúdo para checar se o CMS está no blog e não na home.
 - Não exige build, bundler, dependências ou servidor local.
 
 ## Interface
@@ -66,6 +67,8 @@ A extensão procura sitemaps públicos e classifica apenas URLs com sinal forte 
 Ela também olha os links da página atual. Se a home tiver um link para `Blog`, `Notícias`, `Artigos`, `Receitas`, `Dicas`, `Guias`, `Insights` ou outra área clara de conteúdo, a extensão segue poucos candidatos e verifica esse destino também. Isso cobre casos em que o e-commerce da home usa uma plataforma e o blog roda em WordPress em outro subdomínio.
 
 Exemplo: a home pode estar em uma plataforma de loja, mas apontar para `blog.exemplo.com.br`. Nesse caso, se o blog tiver sinais de WordPress, o resultado pode aparecer como `WordPress detectado no blog`, com as evidências marcadas como `blog/conteúdo`.
+
+Quando encontra esses links, o popup mostra uma seção `Áreas de conteúdo encontradas` com URLs reais coletadas na página. Se alguma delas tiver CMS confirmado, o CMS aparece ao lado da URL.
 
 Ela tenta:
 
