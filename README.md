@@ -77,6 +77,7 @@ Depois carregue a pasta clonada em `chrome://extensions/`.
 - Mostra pontuação e confiança para o CMS principal.
 - Lista evidências para auditoria rápida.
 - Verifica sitemaps sem inflar o número com páginas institucionais.
+- Segue links claros de `blog`, `notícias`, `artigos`, `receitas`, `dicas` e áreas de conteúdo para checar se o CMS está no blog e não na home.
 - Não exige build, bundler, dependências ou servidor local.
 
 ## Interface
@@ -94,6 +95,10 @@ O visual usa a cor principal da Sowads como protagonista: amarelo gema de ovo, c
 ## Conteúdo Via Sitemap
 
 A extensão procura sitemaps públicos e classifica apenas URLs com sinal forte de conteúdo.
+
+Ela também olha os links da página atual. Se a home tiver um link para `Blog`, `Notícias`, `Artigos`, `Receitas`, `Dicas`, `Guias`, `Insights` ou outra área clara de conteúdo, a extensão segue poucos candidatos e verifica esse destino também. Isso cobre casos em que o e-commerce da home usa uma plataforma e o blog roda em WordPress em outro subdomínio.
+
+Exemplo: a home pode estar em uma plataforma de loja, mas apontar para `blog.exemplo.com.br`. Nesse caso, se o blog tiver sinais de WordPress, o resultado pode aparecer como `WordPress detectado no blog`, com as evidências marcadas como `blog/conteúdo`.
 
 Ela tenta:
 

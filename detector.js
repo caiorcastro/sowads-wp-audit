@@ -78,7 +78,7 @@
   function normalizeSignal(signal) {
     return {
       cms: signal.cms,
-      label: signal.label || "Evidencia",
+      label: signal.label || "Evidência",
       detail: signal.detail || "",
       source: signal.source || "page",
       url: signal.url || "",
@@ -125,6 +125,18 @@
     return "incerta";
   }
 
+  function signalWeightTotal(signals, predicate) {
+    return signals
+      .filter(predicate)
+      .reduce((total, signal) => total + Number(signal.weight || 0), 0);
+  }
+
+  function isContentHubSignal(signal) {
+    const source = String(signal.source || "").toLowerCase();
+    const label = String(signal.label || "").toLowerCase();
+    return source.includes("blog") || source.includes("conteúdo") || label.startsWith("blog:");
+  }
+
   function summarize(results) {
     const primary = results[0] || null;
     const alternatives = results.slice(1, 4);
@@ -139,12 +151,20 @@
       };
     }
 
+    const contentHubScore = signalWeightTotal(primary.signals, isContentHubSignal);
+    const directScore = signalWeightTotal(primary.signals, (signal) => !isContentHubSignal(signal));
+    const detectedInContentHub = contentHubScore >= 45 && contentHubScore > directScore;
+
     return {
       status: primary.confidence === "baixa" ? "possible" : "detected",
-      title: primary.confidence === "baixa"
-        ? `${primary.name} possível`
-        : `${primary.name} detectado`,
-      message: `Confiança ${primary.confidence}, baseada em ${primary.signals.length} evidência(s).`,
+      title: detectedInContentHub
+        ? `${primary.name} detectado no blog`
+        : primary.confidence === "baixa"
+          ? `${primary.name} possível`
+          : `${primary.name} detectado`,
+      message: detectedInContentHub
+        ? `A página apontou para uma área de conteúdo com sinais de ${primary.name}. Confiança ${primary.confidence}, baseada em ${primary.signals.length} evidência(s).`
+        : `Confiança ${primary.confidence}, baseada em ${primary.signals.length} evidência(s).`,
       primary,
       alternatives
     };

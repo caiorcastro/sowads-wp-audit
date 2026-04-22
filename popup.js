@@ -216,10 +216,12 @@ async function detect() {
   pageHost.textContent = formatHost(tab.url);
 
   let pageSignals = [];
+  let contentLinks = [];
   try {
     const pageResponse = await sendTabMessage(tab.id, { type: "CMS_DETECT_COLLECT_PAGE" });
     if (pageResponse && pageResponse.ok && pageResponse.data) {
       pageSignals = pageResponse.data.signals || [];
+      contentLinks = pageResponse.data.contentLinks || [];
     }
   } catch (_) {
     pageSignals = [];
@@ -230,7 +232,8 @@ async function detect() {
   try {
     const networkResponse = await sendMessage({
       type: "CMS_DETECT_COLLECT_NETWORK",
-      url: tab.url
+      url: tab.url,
+      contentLinks
     });
     if (networkResponse && networkResponse.ok) {
       networkSignals = networkResponse.signals || [];

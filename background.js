@@ -4,6 +4,7 @@ const REQUEST_TIMEOUT_MS = 2400;
 const MAX_SITEMAPS_TO_FETCH = 8;
 const MAX_SITEMAP_URLS = 650;
 const MAX_BLOG_EXAMPLES = 4;
+const MAX_CONTENT_LINK_PROBES = 3;
 const CONTENT_SITEMAP_PATTERNS = [
   /(^|[-_/])post(s)?([-_.]|$)/i,
   /(^|[-_/])article(s)?([-_.]|$)/i,
@@ -41,6 +42,33 @@ function originFromUrl(url) {
   }
 }
 
+function hostnameFromUrl(url) {
+  try {
+    return new URL(url).hostname.replace(/^www\./, "");
+  } catch (_) {
+    return "";
+  }
+}
+
+function baseDomain(hostname) {
+  const parts = String(hostname || "").replace(/^www\./, "").split(".").filter(Boolean);
+  if (parts.length <= 2) return parts.join(".");
+
+  const last = parts[parts.length - 1];
+  const second = parts[parts.length - 2];
+  if (last === "br" && ["com", "net", "org", "blog"].includes(second) && parts.length >= 3) {
+    return parts.slice(-3).join(".");
+  }
+
+  return parts.slice(-2).join(".");
+}
+
+function sameSiteFamily(a, b) {
+  const aBase = baseDomain(hostnameFromUrl(a));
+  const bBase = baseDomain(hostnameFromUrl(b));
+  return Boolean(aBase && bBase && aBase === bBase);
+}
+
 function withTimeout(signal) {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
@@ -72,7 +100,7 @@ async function fetchWithTimeout(url, options = {}) {
   }
 }
 
-function inspectHeaders(signals, response, url) {
+function inspectHeaders(signals, response, url, source = "headers", labelPrefix = "") {
   const headers = {};
   for (const [key, value] of response.headers.entries()) {
     headers[key.toLowerCase()] = value;
@@ -81,31 +109,31 @@ function inspectHeaders(signals, response, url) {
   const combined = lower(Object.entries(headers).map(([key, value]) => `${key}: ${value}`).join("\n"));
 
   if (combined.includes("wp-json") || combined.includes("api.w.org")) {
-    add(signals, "wordpress", "Headers WordPress REST", "Link/header contem wp-json ou api.w.org", 45, "headers", url);
+    add(signals, "wordpress", `${labelPrefix}Headers WordPress REST`, "Link/header contém wp-json ou api.w.org", 45, source, url);
   }
   if (combined.includes("wordpress")) {
-    add(signals, "wordpress", "Header WordPress", "Header menciona WordPress", 35, "headers", url);
+    add(signals, "wordpress", `${labelPrefix}Header WordPress`, "Header menciona WordPress", 35, source, url);
   }
   if (combined.includes("x-shopify") || combined.includes("shopify")) {
-    add(signals, "shopify", "Headers Shopify", "Header menciona Shopify", 42, "headers", url);
+    add(signals, "shopify", `${labelPrefix}Headers Shopify`, "Header menciona Shopify", 42, source, url);
   }
   if (combined.includes("x-wix") || combined.includes("wix")) {
-    add(signals, "wix", "Headers Wix", "Header menciona Wix", 36, "headers", url);
+    add(signals, "wix", `${labelPrefix}Headers Wix`, "Header menciona Wix", 36, source, url);
   }
   if (combined.includes("x-drupal") || combined.includes("drupal")) {
-    add(signals, "drupal", "Headers Drupal", "Header menciona Drupal", 38, "headers", url);
+    add(signals, "drupal", `${labelPrefix}Headers Drupal`, "Header menciona Drupal", 38, source, url);
   }
   if (combined.includes("x-generator") && combined.includes("joomla")) {
-    add(signals, "joomla", "Headers Joomla", "X-Generator Joomla", 42, "headers", url);
+    add(signals, "joomla", `${labelPrefix}Headers Joomla`, "X-Generator Joomla", 42, source, url);
   }
   if (combined.includes("x-magento") || combined.includes("magento")) {
-    add(signals, "magento", "Headers Magento", "Header menciona Magento", 38, "headers", url);
+    add(signals, "magento", `${labelPrefix}Headers Magento`, "Header menciona Magento", 38, source, url);
   }
   if (combined.includes("squarespace")) {
-    add(signals, "squarespace", "Headers Squarespace", "Header menciona Squarespace", 38, "headers", url);
+    add(signals, "squarespace", `${labelPrefix}Headers Squarespace`, "Header menciona Squarespace", 38, source, url);
   }
   if (combined.includes("hubspot")) {
-    add(signals, "hubspot", "Headers HubSpot", "Header menciona HubSpot", 38, "headers", url);
+    add(signals, "hubspot", `${labelPrefix}Headers HubSpot`, "Header menciona HubSpot", 38, source, url);
   }
 
   return headers;
@@ -129,15 +157,15 @@ async function probeCurrentPage(signals, pageUrl) {
   }
 }
 
-async function probeWordPress(signals, origin) {
+async function probeWordPress(signals, origin, source = "network", labelPrefix = "") {
   await Promise.allSettled([
-    probeWordPressJson(signals, origin),
-    probeWordPressEndpoint(signals, origin, "/wp-login.php"),
-    probeWordPressEndpoint(signals, origin, "/xmlrpc.php")
+    probeWordPressJson(signals, origin, source, labelPrefix),
+    probeWordPressEndpoint(signals, origin, "/wp-login.php", source, labelPrefix),
+    probeWordPressEndpoint(signals, origin, "/xmlrpc.php", source, labelPrefix)
   ]);
 }
 
-async function probeWordPressJson(signals, origin) {
+async function probeWordPressJson(signals, origin, source = "network", labelPrefix = "") {
   const wpJsonUrl = `${origin}/wp-json/`;
 
   try {
@@ -148,14 +176,14 @@ async function probeWordPressJson(signals, origin) {
       }
     });
 
-    inspectHeaders(signals, response, wpJsonUrl);
+    inspectHeaders(signals, response, wpJsonUrl, source, labelPrefix);
 
     const contentType = lower(response.headers.get("content-type"));
     if (response.ok && contentType.includes("json")) {
       const data = await response.json();
       const payload = JSON.stringify(data).slice(0, 25000);
       if (payload.includes('"wp/v2"') || payload.includes('"namespaces"') && payload.includes("wp/")) {
-        add(signals, "wordpress", "Endpoint /wp-json/", "REST API WordPress respondeu JSON válido", 55, "network", wpJsonUrl);
+        add(signals, "wordpress", `${labelPrefix}Endpoint /wp-json/`, "REST API WordPress respondeu JSON válido", 55, source, wpJsonUrl);
       }
     }
   } catch (_) {
@@ -163,14 +191,14 @@ async function probeWordPressJson(signals, origin) {
   }
 }
 
-async function probeWordPressEndpoint(signals, origin, path) {
+async function probeWordPressEndpoint(signals, origin, path, source = "network", labelPrefix = "") {
   const url = `${origin}${path}`;
 
   try {
     const response = await fetchWithTimeout(url, { method: "HEAD" });
     const server = lower(response.headers.get("server"));
     if ([200, 301, 302, 405].includes(response.status)) {
-      add(signals, "wordpress", `Endpoint ${path}`, `status ${response.status}${server ? `, server ${server}` : ""}`, 14, "network", url);
+      add(signals, "wordpress", `${labelPrefix}Endpoint ${path}`, `status ${response.status}${server ? `, server ${server}` : ""}`, 14, source, url);
     }
   } catch (_) {
     // Probes leves e opcionais.
@@ -196,6 +224,79 @@ async function probeCommonFiles(signals, origin) {
     }
   } catch (_) {
     // robots.txt e opcional.
+  }
+}
+
+function inspectHtmlSignals(signals, html, url, source, labelPrefix) {
+  const body = lower(html || "");
+  if (!body) return;
+
+  if (body.includes("content=\"wordpress") || body.includes("/wp-content/") || body.includes("/wp-includes/")) {
+    add(signals, "wordpress", `${labelPrefix}HTML WordPress`, "HTML contém generator/assets WordPress", 38, source, url);
+  }
+  if (body.includes("https://api.w.org/") || body.includes("/wp-json/")) {
+    add(signals, "wordpress", `${labelPrefix}REST API WordPress no HTML`, "HTML menciona api.w.org ou /wp-json/", 42, source, url);
+  }
+  if (body.includes("wp-emoji-release") || body.includes("wp-block-library")) {
+    add(signals, "wordpress", `${labelPrefix}Assets WordPress`, "HTML contém wp-emoji-release ou wp-block-library", 30, source, url);
+  }
+  if (body.includes("cdn.shopify.com") || body.includes("window.shopify")) {
+    add(signals, "shopify", `${labelPrefix}HTML Shopify`, "HTML contém sinais Shopify", 34, source, url);
+  }
+  if (body.includes("wixstatic.com") || body.includes("parastorage.com")) {
+    add(signals, "wix", `${labelPrefix}HTML Wix`, "HTML contém assets Wix", 34, source, url);
+  }
+  if (body.includes("data-wf-page") || body.includes("webflow.js")) {
+    add(signals, "webflow", `${labelPrefix}HTML Webflow`, "HTML contém sinais Webflow", 34, source, url);
+  }
+  if (body.includes("squarespace_context") || body.includes("static1.squarespace.com")) {
+    add(signals, "squarespace", `${labelPrefix}HTML Squarespace`, "HTML contém sinais Squarespace", 34, source, url);
+  }
+  if (body.includes("drupalsettings") || body.includes("/sites/default/")) {
+    add(signals, "drupal", `${labelPrefix}HTML Drupal`, "HTML contém sinais Drupal", 34, source, url);
+  }
+  if (body.includes("requirejs-config.js") || body.includes("/static/frontend/")) {
+    add(signals, "magento", `${labelPrefix}HTML Magento`, "HTML contém sinais Magento", 30, source, url);
+  }
+}
+
+function selectContentLinks(pageUrl, contentLinks) {
+  const seen = new Set();
+  return (Array.isArray(contentLinks) ? contentLinks : [])
+    .filter((link) => link && link.url && /^https?:\/\//i.test(link.url))
+    .filter((link) => sameSiteFamily(pageUrl, link.url))
+    .sort((a, b) => Number(b.score || 0) - Number(a.score || 0))
+    .filter((link) => {
+      const key = originFromUrl(link.url) || link.url;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    })
+    .slice(0, MAX_CONTENT_LINK_PROBES);
+}
+
+async function probeContentLink(signals, link) {
+  const source = "blog/conteúdo";
+  const labelPrefix = "Blog: ";
+  const response = await fetchWithTimeout(link.url, {
+    method: "GET",
+    headers: {
+      "accept": "text/html,application/xhtml+xml,*/*"
+    }
+  });
+
+  inspectHeaders(signals, response, link.url, source, labelPrefix);
+  const contentType = lower(response.headers.get("content-type"));
+  if (response.ok && (!contentType || contentType.includes("html") || contentType.includes("text"))) {
+    inspectHtmlSignals(signals, (await response.text()).slice(0, 260000), link.url, source, labelPrefix);
+  }
+
+  const linkedOrigin = originFromUrl(response.url || link.url);
+  if (linkedOrigin) {
+    await Promise.allSettled([
+      probeWordPress(signals, linkedOrigin, source, labelPrefix),
+      probeCommonFiles(signals, linkedOrigin)
+    ]);
   }
 }
 
@@ -374,6 +475,7 @@ function summarizeSitemap(urls, fetchedSitemaps) {
     sitemapsChecked: fetchedSitemaps,
     totalUrlsFound: uniqueUrls.length,
     contentUrlsFound: uniqueContentUrls.length,
+    contentUrls: uniqueContentUrls,
     hasBlog: uniqueContentUrls.length > 0,
     blogSignals: Array.from(blogSignals),
     examples,
@@ -382,6 +484,34 @@ function summarizeSitemap(urls, fetchedSitemaps) {
       : fetchedSitemaps.length
         ? "Sitemap encontrado, mas sem URLs claras de blog/artigos."
         : "Não encontrei sitemap público nos caminhos rápidos."
+  };
+}
+
+function mergeSitemapEvidence(sitemaps, contentLinksChecked) {
+  const valid = sitemaps.filter(Boolean);
+  const fetched = unique(valid.flatMap((item) => item.sitemapsChecked || []));
+  const contentUrls = unique(valid.flatMap((item) => item.contentUrls || item.examples || []));
+  const examples = contentUrls.slice(0, MAX_BLOG_EXAMPLES);
+  const hasLinkedContent = Array.isArray(contentLinksChecked) && contentLinksChecked.length > 0;
+
+  return {
+    checked: valid.some((item) => item.checked),
+    status: fetched.length ? "found" : "missing",
+    sitemapsChecked: fetched,
+    totalUrlsFound: valid.reduce((total, item) => total + Number(item.totalUrlsFound || 0), 0),
+    contentUrlsFound: contentUrls.length,
+    contentUrls,
+    hasBlog: contentUrls.length > 0,
+    blogSignals: unique(valid.flatMap((item) => item.blogSignals || [])),
+    examples,
+    contentLinksChecked,
+    message: contentUrls.length
+      ? `${contentUrls.length} URL(s) de conteúdo/artigo encontradas${hasLinkedContent ? ", incluindo área de blog/conteúdo ligada na página." : " no sitemap."}`
+      : fetched.length
+        ? `Sitemap encontrado${hasLinkedContent ? " e área de blog/conteúdo verificada" : ""}, mas sem URLs claras de blog/artigos.`
+        : hasLinkedContent
+          ? "Área de blog/conteúdo encontrada na página, mas sem sitemap público claro."
+          : "Não encontrei sitemap público nos caminhos rápidos."
   };
 }
 
@@ -496,7 +626,7 @@ async function collectSitemapEvidence(origin) {
   return summarizeSitemap(discoveredUrls, fetchedSitemaps);
 }
 
-async function collectNetworkEvidence(pageUrl) {
+async function collectNetworkEvidence(pageUrl, contentLinks = []) {
   const signals = [];
   const origin = originFromUrl(pageUrl);
   if (!origin) return {
@@ -510,28 +640,48 @@ async function collectNetworkEvidence(pageUrl) {
       hasBlog: false,
       blogSignals: [],
       examples: [],
+      contentLinksChecked: [],
       message: "URL inválida para verificar sitemap."
     }
   };
 
+  const selectedContentLinks = selectContentLinks(pageUrl, contentLinks);
   const sitemapPromise = collectSitemapEvidence(origin);
   await Promise.allSettled([
     probeCurrentPage(signals, pageUrl),
     probeWordPress(signals, origin),
-    probeCommonFiles(signals, origin)
+    probeCommonFiles(signals, origin),
+    ...selectedContentLinks.map((link) => probeContentLink(signals, link))
   ]);
 
-  const sitemap = await sitemapPromise.catch(() => ({
+  const sitemaps = [await sitemapPromise.catch(() => ({
     checked: true,
     status: "error",
     sitemapsChecked: [],
     totalUrlsFound: 0,
     contentUrlsFound: 0,
+    contentUrls: [],
     hasBlog: false,
     blogSignals: [],
     examples: [],
     message: "Falha ao verificar sitemap rapidamente."
-  }));
+  }))];
+
+  const linkedSitemaps = await Promise.allSettled(
+    selectedContentLinks
+      .map((link) => originFromUrl(link.url))
+      .filter((linkedOrigin) => linkedOrigin && linkedOrigin !== origin)
+      .map((linkedOrigin) => collectSitemapEvidence(linkedOrigin))
+  );
+
+  for (const result of linkedSitemaps) {
+    if (result.status === "fulfilled") sitemaps.push(result.value);
+  }
+
+  const sitemap = mergeSitemapEvidence(sitemaps, selectedContentLinks.map((link) => ({
+    url: link.url,
+    text: link.text || "Blog/conteúdo"
+  })));
 
   return { signals, sitemap };
 }
@@ -541,7 +691,7 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
     return false;
   }
 
-  collectNetworkEvidence(message.url)
+  collectNetworkEvidence(message.url, message.contentLinks || [])
     .then((data) => {
       sendResponse({ ok: true, signals: data.signals, sitemap: data.sitemap });
     })

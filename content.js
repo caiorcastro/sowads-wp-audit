@@ -1,5 +1,6 @@
 (function initContentDetector() {
   const MAX_ASSETS = 220;
+  const MAX_CONTENT_LINKS = 8;
 
   function add(signals, cms, label, detail, weight, source, url) {
     signals.push({ cms, label, detail, weight, source, url });
@@ -11,6 +12,12 @@
 
   function lower(value) {
     return text(value).toLowerCase();
+  }
+
+  function searchable(value) {
+    return lower(value)
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "");
   }
 
   function currentOrigin() {
@@ -27,6 +34,110 @@
     } catch (_) {
       return false;
     }
+  }
+
+  function contentLinkScore(anchor, absoluteUrl) {
+    let url;
+    try {
+      url = new URL(absoluteUrl);
+    } catch (_) {
+      return 0;
+    }
+
+    const label = searchable([
+      anchor.innerText,
+      anchor.getAttribute("aria-label"),
+      anchor.getAttribute("title"),
+      anchor.getAttribute("href")
+    ].filter(Boolean).join(" "));
+    const path = searchable(`${url.hostname}${url.pathname}`);
+    const value = `${label} ${path}`;
+    const positive = [
+      "blog",
+      "noticia",
+      "noticias",
+      "artigo",
+      "artigos",
+      "insight",
+      "insights",
+      "conteudo",
+      "conteudos",
+      "receita",
+      "receitas",
+      "dica",
+      "dicas",
+      "guia",
+      "guias",
+      "revista",
+      "imprensa",
+      "novidade",
+      "novidades",
+      "inspiracao"
+    ];
+    const negative = [
+      "produto",
+      "produtos",
+      "carrinho",
+      "checkout",
+      "conta",
+      "login",
+      "favoritos",
+      "politica",
+      "termos",
+      "atendimento",
+      "sacola"
+    ];
+
+    if (negative.some((word) => value.includes(word))) {
+      return 0;
+    }
+
+    let score = 0;
+    for (const word of positive) {
+      if (value.includes(word)) score += 15;
+    }
+    if (url.hostname.startsWith("blog.")) score += 35;
+    if (/\/(blog|noticias|artigos|insights|conteudos|receitas|dicas)(\/|$)/i.test(url.pathname)) {
+      score += 30;
+    }
+    if (/^(blog|conteudo|conteudos|news)\./i.test(url.hostname)) {
+      score += 25;
+    }
+
+    return Math.min(100, score);
+  }
+
+  function collectContentLinks() {
+    const links = [];
+    const seen = new Set();
+
+    for (const anchor of Array.from(document.querySelectorAll("a[href]")).slice(0, 450)) {
+      const rawHref = anchor.getAttribute("href");
+      if (!rawHref || /^(#|mailto:|tel:|javascript:)/i.test(rawHref)) continue;
+
+      let absoluteUrl = "";
+      try {
+        absoluteUrl = new URL(rawHref, window.location.href).href;
+      } catch (_) {
+        continue;
+      }
+
+      if (!/^https?:\/\//i.test(absoluteUrl) || absoluteUrl === window.location.href) continue;
+
+      const score = contentLinkScore(anchor, absoluteUrl);
+      if (score < 20 || seen.has(absoluteUrl)) continue;
+
+      seen.add(absoluteUrl);
+      links.push({
+        url: absoluteUrl,
+        text: text(anchor.innerText || anchor.getAttribute("aria-label") || anchor.getAttribute("title") || rawHref).slice(0, 90),
+        score
+      });
+    }
+
+    return links
+      .sort((a, b) => b.score - a.score)
+      .slice(0, MAX_CONTENT_LINKS);
   }
 
   function collectMeta(signals) {
@@ -153,7 +264,7 @@
       add(signals, "shopify", "Objeto Shopify", "window.Shopify", 38, "dom");
     }
     if (typeof window.theme !== "undefined" && /shopify/i.test(JSON.stringify(window.theme).slice(0, 2000))) {
-      add(signals, "shopify", "Tema Shopify", "window.theme contem Shopify", 20, "dom");
+      add(signals, "shopify", "Tema Shopify", "window.theme contém Shopify", 20, "dom");
     }
     if (typeof window.HubSpotConversations !== "undefined" || typeof window.hbspt !== "undefined") {
       add(signals, "hubspot", "Objeto HubSpot", "HubSpotConversations/hbspt", 36, "dom");
@@ -212,7 +323,8 @@
     return {
       url: window.location.href,
       title: document.title,
-      signals
+      signals,
+      contentLinks: collectContentLinks()
     };
   }
 
