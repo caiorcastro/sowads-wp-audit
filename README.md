@@ -15,6 +15,61 @@ Extensão Chrome simples, rápida e com identidade visual alinhada à Sowads par
 
 O princípio do projeto é direto: mostrar o que foi encontrado, deixar claro o nível de confiança e nunca inventar volume de posts ou CMS.
 
+## Instalação Rápida
+
+> O Chrome instala esta extensão como pasta descompactada. Você baixa o `.zip` do GitHub, descompacta e aponta o Chrome para a pasta extraída.
+
+| Etapa | O que fazer |
+| --- | --- |
+| 1. Baixar | Abra o repositório no GitHub e clique em `Code` -> `Download ZIP`. |
+| 2. Descompactar | Extraia o arquivo `.zip` no seu computador. |
+| 3. Abrir Chrome | Acesse `chrome://extensions/`. |
+| 4. Liberar dev mode | Ative `Modo do desenvolvedor` no canto superior direito. |
+| 5. Carregar | Clique em `Carregar sem compactação`. |
+| 6. Selecionar pasta | Escolha a pasta extraída do projeto, não o arquivo `.zip`. |
+| 7. Usar | Abra um site e clique no ícone da extensão. |
+
+```text
+GitHub
+  -> Code
+  -> Download ZIP
+  -> Descompactar
+  -> chrome://extensions/
+  -> Modo do desenvolvedor
+  -> Carregar sem compactação
+  -> Selecionar a pasta extraída
+```
+
+### Baixar Pelo GitHub
+
+1. Entre em `https://github.com/caiorcastro/sowads-wp-audit`.
+2. Clique no botão verde `Code`.
+3. Clique em `Download ZIP`.
+4. Descompacte o arquivo baixado.
+5. Guarde a pasta descompactada em um local fácil de encontrar.
+
+### Instalar No Chrome
+
+1. Abra `chrome://extensions/`.
+2. Ative `Modo do desenvolvedor`.
+3. Clique em `Carregar sem compactação`.
+4. Selecione a pasta descompactada do projeto.
+5. Confirme que a extensão `Sowads WP Audit` apareceu na lista.
+6. Fixe o ícone na barra do Chrome, se quiser acessar mais rápido.
+
+### Atenção Ao ZIP
+
+O Chrome não carrega o arquivo `.zip` diretamente em `Carregar sem compactação`. Se você baixou pelo GitHub, precisa descompactar primeiro e selecionar a pasta resultante.
+
+Também dá para instalar clonando pelo terminal:
+
+```bash
+git clone https://github.com/caiorcastro/sowads-wp-audit.git
+cd sowads-wp-audit
+```
+
+Depois carregue a pasta clonada em `chrome://extensions/`.
+
 ## Destaques
 
 - Detecta WordPress como prioridade, mas também reconhece Shopify, Wix, Webflow, Squarespace, Drupal, Joomla, Magento, Ghost, HubSpot CMS, PrestaShop, Blogger, Duda e sinais de Next.js.
@@ -110,29 +165,7 @@ Este projeto junta algumas competências para entregar uma extensão útil sem v
 | Performance | Limita requisições, URLs e sitemaps para manter tudo rápido. |
 | Design de repositório GitHub | README com hero, badges, instalação, critérios, estrutura e roadmap. |
 
-## Manual De Instalação
-
-### Instalar Como Extensão Local
-
-1. Baixe ou clone este repositório.
-2. Abra o Chrome.
-3. Acesse `chrome://extensions/`.
-4. Ative `Modo do desenvolvedor`.
-5. Clique em `Carregar sem compactação`.
-6. Selecione a pasta do projeto.
-7. Abra um site HTTP ou HTTPS.
-8. Clique no ícone da extensão.
-
-### Clonar Pelo Terminal
-
-```bash
-git clone https://github.com/caiorcastro/sowads-wp-audit.git
-cd sowads-wp-audit
-```
-
-Depois carregue a pasta em `chrome://extensions/` usando `Carregar sem compactação`.
-
-### Atualizar Depois De Mudanças
+## Atualizar Depois De Mudanças
 
 1. Abra `chrome://extensions/`.
 2. Encontre `Sowads WP Audit`.
