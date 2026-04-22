@@ -11,9 +11,9 @@
   <img alt="Sem chute" src="https://img.shields.io/badge/Política-sem%20chute-111111?style=flat-square&labelColor=F6C400&color=111111">
 </p>
 
-Extensão Chrome simples, rápida e com identidade visual alinhada à Sowads para identificar o CMS provável de um site, com foco especial em WordPress. Ela também faz uma leitura conservadora de sitemap para encontrar sinais reais de blog, artigos, notícias e conteúdo.
+Extensão Chrome simples e rápida para uso interno em auditorias de site. Ela identifica o CMS provável, com foco especial em WordPress, e faz uma leitura conservadora de sitemap para encontrar sinais reais de blog, artigos, notícias e conteúdo.
 
-O princípio do projeto é direto: mostrar o que foi encontrado, deixar claro o nível de confiança e nunca inventar volume de posts ou CMS.
+O princípio do projeto é direto: mostrar o que foi encontrado, deixar claro o nível de confiança e nunca inventar volume de posts ou CMS. A ferramenta pode ser usada pelo time e também em conversas com clientes quando fizer sentido mostrar evidências.
 
 ## Instalação Rápida
 
@@ -58,7 +58,7 @@ A extensão foi desenhada para uma leitura em menos de 10 segundos:
 4. Bloco de sitemap com contagem conservadora de conteúdo.
 5. Evidências que explicam o resultado.
 
-O visual usa a cor principal da Sowads como protagonista: amarelo gema de ovo, contraste preto, cards limpos e hierarquia objetiva. A ideia é combinar com a narrativa da Sowads: estratégia, tecnologia, SEO, dados e operação.
+O visual prioriza leitura rápida: contraste forte, cards limpos e hierarquia objetiva. A marca fica como identidade interna da ferramenta.
 
 ## Conteúdo Via Sitemap
 
@@ -214,4 +214,4 @@ Também foram simulados sitemaps para garantir que:
 
 ## Licença
 
-Projeto interno/experimental da Sowads. Defina uma licença antes de distribuir publicamente.
+Projeto interno/experimental. Defina uma licença antes de distribuir publicamente.
